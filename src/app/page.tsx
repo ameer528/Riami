@@ -1,10 +1,39 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Activity, Users, Target, DollarSign, Zap, ArrowRight, LogOut } from 'lucide-react';
+import { Activity, Users, Target, DollarSign, Zap, ArrowRight, LogOut, Loader2, Terminal } from 'lucide-react';
 
 export default function RiamiDashboard() {
+  const [objective, setObjective] = useState('');
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [aiPlan, setAiPlan] = useState<string | null>(null);
+
+  const handleExecute = async () => {
+    if (!objective.trim()) return;
+    setIsExecuting(true);
+    setAiPlan(null);
+
+    try {
+      const res = await fetch('/api/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objective }),
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setAiPlan(data.plan);
+      } else {
+        setAiPlan("Error: Failed to generate plan. Ensure API key is set in Vercel.");
+      }
+    } catch (err) {
+      setAiPlan("Error: Connection failed.");
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-blue-500/30">
       
@@ -36,7 +65,6 @@ export default function RiamiDashboard() {
           ))}
         </nav>
 
-        {/* Sign Out Button */}
         <Link href="/login" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors mt-auto">
           <LogOut className="w-4 h-4" />
           Sign Out
@@ -81,13 +109,39 @@ export default function RiamiDashboard() {
             <div className="flex gap-3">
               <input 
                 type="text" 
-                placeholder="e.g., Find 100 marketing agencies in New York and initiate outreach..."
+                value={objective}
+                onChange={(e) => setObjective(e.target.value)}
+                placeholder="e.g., Find 100 marketing agencies in New York..."
                 className="flex-1 bg-[#0A0A0A] border border-[#333] rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                onKeyDown={(e) => e.key === 'Enter' && handleExecute()}
               />
-              <button className="bg-white text-black px-6 py-3 rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors flex items-center gap-2">
-                Execute <ArrowRight className="w-4 h-4" />
+              <button 
+                onClick={handleExecute}
+                disabled={isExecuting}
+                className="bg-white text-black px-6 py-3 rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {isExecuting ? 'Thinking...' : 'Execute'} 
+                {!isExecuting && <ArrowRight className="w-4 h-4" />}
               </button>
             </div>
+            
+            {/* AI Response Terminal */}
+            {aiPlan && (
+              <div className="mt-6 p-4 bg-[#050505] border border-[#333] rounded-lg font-mono text-sm text-green-400">
+                <div className="flex items-center gap-2 mb-2 text-gray-500 border-b border-[#222] pb-2">
+                  <Terminal className="w-4 h-4" />
+                  <span>Supervisor Output</span>
+                </div>
+                <div className="whitespace-pre-wrap leading-relaxed">{aiPlan}</div>
+              </div>
+            )}
+            
+            {isExecuting && (
+              <div className="mt-6 p-4 border border-[#333] rounded-lg flex items-center gap-3 text-blue-400 text-sm font-mono bg-blue-500/5">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Riami agents are processing your objective...
+              </div>
+            )}
           </div>
 
           {/* Agent Activity Log */}
@@ -126,4 +180,4 @@ export default function RiamiDashboard() {
       </div>
     </div>
   );
-}
+          }
