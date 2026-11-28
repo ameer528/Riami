@@ -1,9 +1,14 @@
+"use client";
+
 import React from 'react';
-import { Activity, Users, Target, DollarSign, Zap, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { Activity, Users, Target, DollarSign, Zap, ArrowRight, LogOut } from 'lucide-react';
 
 export default function RiamiDashboard() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white font-sans selection:bg-blue-500/30">
+      
+      {/* Sidebar */}
       <div className="fixed inset-y-0 left-0 w-64 border-r border-[#222] bg-[#0A0A0A] p-6 flex flex-col">
         <div className="flex items-center gap-3 mb-10">
           <div className="w-8 h-8 rounded-full border-2 border-blue-500 flex items-center justify-center">
@@ -30,8 +35,15 @@ export default function RiamiDashboard() {
             </button>
           ))}
         </nav>
+
+        {/* Sign Out Button */}
+        <Link href="/login" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors mt-auto">
+          <LogOut className="w-4 h-4" />
+          Sign Out
+        </Link>
       </div>
 
+      {/* Main Content */}
       <div className="pl-64">
         <header className="h-16 border-b border-[#222] flex items-center justify-between px-8 bg-[#0A0A0A]/80 backdrop-blur-sm sticky top-0">
           <h1 className="text-lg font-semibold">Command Center</h1>
@@ -42,6 +54,7 @@ export default function RiamiDashboard() {
         </header>
 
         <main className="p-8 max-w-6xl mx-auto space-y-8">
+          {/* Metric Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               { label: 'Active Prospects', value: '1,248', icon: Target, trend: '+12%' },
@@ -62,6 +75,7 @@ export default function RiamiDashboard() {
             ))}
           </div>
 
+          {/* Objective Input */}
           <div className="p-6 border border-[#222] rounded-xl bg-[#111111]">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Deploy Workforce</h2>
             <div className="flex gap-3">
@@ -76,6 +90,7 @@ export default function RiamiDashboard() {
             </div>
           </div>
 
+          {/* Agent Activity Log */}
           <div className="border border-[#222] rounded-xl bg-[#111111] overflow-hidden">
             <div className="p-4 border-b border-[#222] flex justify-between items-center">
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Live Agent Executions</h2>
@@ -111,4 +126,4 @@ export default function RiamiDashboard() {
       </div>
     </div>
   );
-                    }
+}
